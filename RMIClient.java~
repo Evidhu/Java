@@ -11,7 +11,7 @@ public class RMIClient implements ActionListener{
     JPanel jf=new JPanel();
     JFrame jf1=new JFrame();
 	
-	JLabel lblip=new JLabel("Server IP");
+    JLabel lblip=new JLabel("Server IP");
     JLabel lbl1=new JLabel("First String");
     JLabel lbl2=new JLabel("Second String");
     JLabel lbl3=new JLabel("Result String");
@@ -89,6 +89,7 @@ public class RMIClient implements ActionListener{
 			jf1.setVisible(true);
 			jf1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         }catch(Exception ex){
+			JOptionPane.showMessageDialog(jf1,ex.getMessage());
 			System.out.println(""+ex);
 		}
     }
@@ -120,9 +121,10 @@ public class RMIClient implements ActionListener{
 				JOptionPane.showMessageDialog(jf1,"Successfully Connected");
 			}
 		}catch(NullPointerException ex){
-			JOptionPane.showMessageDialog(jf1,"Error in Connection");
+			JOptionPane.showMessageDialog(jf1,"Server not found");
+			System.exit(0);
 		}catch(Exception ex){
-			JOptionPane.showMessageDialog(jf1,"Some Error Occurred");
+			JOptionPane.showMessageDialog(jf1,ex.getMessage());
 			System.out.println("error : "+ex);
 		}
 	}
