@@ -6,6 +6,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.Random;
 
 public class Client {
     DatagramPacket dp;
@@ -14,14 +15,14 @@ public class Client {
     public Client(String ip){
         serip=ip;
     }
-    public void sendData(){
+    public void sendData(int port){
         try {
             DatagramSocket ds=new DatagramSocket();
           
             byte a[]=new byte[255];
          
                 a=str.getBytes();
-                dp=new DatagramPacket(a,a.length,InetAddress.getLocalHost(),8000);
+                dp=new DatagramPacket(a,a.length,InetAddress.getByName(serip),port);
                 ds.send(dp);
          
                 
@@ -58,14 +59,20 @@ public class Client {
         
         Client cli=new Client(args[0]);
         while(true){
+
+	    Random r = new Random();
+	    int fourDigit = 1000 + r.nextInt(10000);
+	    System.out.println(fourDigit);
+	    
             cli.readMatrix();
-            cli.sendData();
+            cli.sendData(Integer.parseInt(args[1+fourDigit%2]));
             cli.receiveData(8001);
         }
     }
 
     private void readMatrix() {
         try {
+	str="";
             DataInputStream dis=new DataInputStream(System.in);
             System.out.println("enter number of rows of first matrix");
             int m=Integer.parseInt(dis.readLine());
@@ -88,7 +95,7 @@ public class Client {
             for(int i=0;i<p;i++)
                 for(int j=0;j<q;j++)
                     str+=dis.readLine()+":";
-            //str+=new IpConfiguration().getIPV4Address();
+           
         }  catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }

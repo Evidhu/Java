@@ -38,6 +38,7 @@ this.port=port;
    
     public void receiveData(int port){
         try {
+		str="";
             DatagramSocket ds=new DatagramSocket(port);
             byte data[]=new byte[255];
                 DatagramPacket dp=new DatagramPacket(new byte[255], 255);
@@ -60,15 +61,15 @@ this.port=port;
                 b=new int[p][q];
                 for(int i=0;i<p;i++){
                     for(int j=0;j<q;j++){
-                        b[i][j]=Integer.parseInt(st[i*p+j+m*n+4]);
+                        b[i][j]=Integer.parseInt(st[i*(p-1)+m*n+j+4]);
                         System.out.println(""+b[i][j]);
                     }
                 }
                 ip=dp.getAddress();//st[m*n+p*q+4];
 		System.out.println(ip.toString());
                 que.add(new MyClass(m, n, p, q, a, b,ip));
-              //  mprint(a);
-              //  mprint(b);                
+                mprint(a);
+                mprint(b);                
                 ds.close();
         } catch (SocketException ex) {
            System.out.println(ex.getMessage());
@@ -76,7 +77,7 @@ this.port=port;
              System.out.println(ex.getMessage());
         }
     }
-    
+  //  2:3:3:6:8:9:5:4:3:2:5:9:8:7:4:5:
      public int[][] multiply(int[][] m1, int[][] m2){
       int m1rows = m1.length;
       int m1cols = m1[0].length;
@@ -99,7 +100,7 @@ this.port=port;
           return result;
       }	 
      
-              
+              n
    }
     public void mprint(int[][] a){
       int rows = a.length;
@@ -117,6 +118,7 @@ this.port=port;
 
      public void sendData(){
         try {
+		str="";
 	   if(que.size()>=1){
 		System.out.println("Load on Server :"+que.size());
 		MyClass mc=que.poll();
@@ -124,23 +126,28 @@ this.port=port;
             	DataInputStream dis=new DataInputStream(System.in);
             	byte data[]=new byte[255];
             	try{
-			int m=mc.m;
+			nint m=mc.m;
 			int n=mc.n;
 			int p=mc.p;
 			int q=mc.q;
 			int[][]a=mc.a;
 			int[][]b=mc.b;
 			InetAddress ip=mc.ip;
+
 		        int[][]c=multiply(a,b);
-		       //  mprint(c);
-		         str=n+":"+p;
-		         for(int i=0;i<n;i++){
-		             for(int j=0;j<p;j++)
+			int rows = c.length;
+		        int cols = c[0].length;
+		         mprint(c);
+		         str=m+":"+q;
+			System.out.println(str);
+		         for(int i=0;i<m;i++){
+		             for(int j=0;j<q;j++)
 		                 str+=":"+c[i][j];
 		         }
                  
                 }catch(IllegalArgumentException e){
                     System.out.println(e);
+			str=e.getMessage();
                 }
                
                 data=str.getBytes();
@@ -156,7 +163,7 @@ this.port=port;
     }
 
     public static void main(String[] args) {
-        int port=Integer.parseInt(arg[0]);
+        int port=Integer.parseInt(args[0]);
         Server ser=new Server(port);
  //       while(true){
  //           ser.receiveData(8000);
