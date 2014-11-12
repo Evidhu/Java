@@ -1,5 +1,4 @@
-import java.io.DataInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -12,6 +11,9 @@ public class Client {
     DatagramPacket dp;
     String str="";
     String serip;
+
+    int[][] fir,sec;
+    int m,n,p,q;
     public Client(String ip){
         serip=ip;
     }
@@ -19,9 +21,18 @@ public class Client {
         try {
             DatagramSocket ds=new DatagramSocket();
           
-            byte a[]=new byte[255];
+            //byte a[]=new byte[255];
+
+		  MyClass C1= new MyClass(m,n,p,q,fir,sec);
+		  ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		  ObjectOutputStream oos = new ObjectOutputStream(baos);
+		  oos.writeObject(C1);
+		  oos.flush();
+		  byte[] a= baos.toByteArray();
+		  //packet = new DatagramPacket(Buf, Buf.length, client, port);
+		 // socket.send(packet);
          
-                a=str.getBytes();
+                //a=str.getBytes();
                 dp=new DatagramPacket(a,a.length,InetAddress.getByName(serip),port);
                 ds.send(dp);
          
@@ -103,26 +114,30 @@ public class Client {
 	str="";
             DataInputStream dis=new DataInputStream(System.in);
             System.out.println("enter number of rows of first matrix");
-            int m=Integer.parseInt(dis.readLine());
-            str+=m+":";
+            m=Integer.parseInt(dis.readLine());
+            //str+=m+":";
             System.out.println("enter number of columns of first matrix");
-            int n=Integer.parseInt(dis.readLine());
-            str+=n+":";
+            n=Integer.parseInt(dis.readLine());
+            //str+=n+":";
+	    fir=new int[m][n];
             System.out.println("enter the elements of first matrix");
             for(int i=0;i<m;i++)
                 for(int j=0;j<n;j++)
-                    str+=dis.readLine()+":";
+			fir[i][j]=Integer.parseInt(dis.readLine());
+                    //str+=dis.readLine()+":";
             
             System.out.println("enter number of rows of 2nd matrix");
-            int p=Integer.parseInt(dis.readLine());
-            str+=p+":";
+            p=Integer.parseInt(dis.readLine());
+            //str+=p+":";
             System.out.println("enter number of columns of 2nd matrix");
-            int q=Integer.parseInt(dis.readLine());
-            str+=q+":";
+            q=Integer.parseInt(dis.readLine());
+            //str+=q+":";
+	     sec=new int[p][q];
             System.out.println("enter the elements of 2nd matrix");
             for(int i=0;i<p;i++)
                 for(int j=0;j<q;j++)
-                    str+=dis.readLine()+":";
+			sec[i][j]=Integer.parseInt(dis.readLine());
+                    //str+=dis.readLine()+":";
            
         }  catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);

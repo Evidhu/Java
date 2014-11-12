@@ -6,7 +6,6 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.Random;
 
 public class Client {
     DatagramPacket dp;
@@ -15,14 +14,14 @@ public class Client {
     public Client(String ip){
         serip=ip;
     }
-    public void sendData(int port){
+    public void sendData(){
         try {
             DatagramSocket ds=new DatagramSocket();
           
             byte a[]=new byte[255];
          
                 a=str.getBytes();
-                dp=new DatagramPacket(a,a.length,InetAddress.getByName(serip),port);
+                dp=new DatagramPacket(a,a.length,InetAddress.getLocalHost(),8000);
                 ds.send(dp);
          
                 
@@ -45,23 +44,8 @@ public class Client {
                 
                 data=dp.getData();
                 str=new String(data);
-                
-		String st[]=str.trim().split(":");
-		if(st.length>1){
-			int m=Integer.parseInt(st[0]);
-		        int n=Integer.parseInt(st[1]);
-		        int a[][]=new int[m][n];
-			int k=2;
-		        for(int i=0;i<m;i++){
-		            for(int j=0;j<n;j++){
-		                a[i][j]=Integer.parseInt(st[k++]);
-		            }
-		        }
-			mprint(a);
-		}else{
-			System.out.println("'"+str.trim()+"'");
-		        
-            	}
+                System.out.println("got : '"+str.trim()+"'");
+            
                 ds.close();
         } catch (SocketException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
@@ -74,33 +58,14 @@ public class Client {
         
         Client cli=new Client(args[0]);
         while(true){
-
-	    Random r = new Random();
-	    int fourDigit = 1000 + r.nextInt(100000);
-	    System.out.println(fourDigit);
-	    
-            cli.readMatrix();
-            cli.sendData(Integer.parseInt(args[1+fourDigit%2]));
-            cli.receiveData(8001);
+            cli.readMatrix(args[1]);
+            cli.sendData();
+            cli.receiveData(Integer.parseInt(args[1]));
         }
     }
-	
- public void mprint(int[][] a){
-      int rows = a.length;
-      int cols = a[0].length;
-      System.out.println("array["+rows+"]["+cols+"] = {");
-      for (int i=0; i< rows; i++){
-         System.out.print("{");
-         for (int j=0; j< cols; j++)
-            System.out.print(" " + a[i][j] + ",");
-         System.out.println("},");
-         
-      }
-      System.out.println(":;");
-   }   
-    private void readMatrix() {
+
+    private void readMatrix(String port) {
         try {
-	str="";
             DataInputStream dis=new DataInputStream(System.in);
             System.out.println("enter number of rows of first matrix");
             int m=Integer.parseInt(dis.readLine());
@@ -123,7 +88,7 @@ public class Client {
             for(int i=0;i<p;i++)
                 for(int j=0;j<q;j++)
                     str+=dis.readLine()+":";
-           
+            str+=port;
         }  catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }

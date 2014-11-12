@@ -80,8 +80,9 @@ public class Client {
 	    System.out.println(fourDigit);
 	    
             cli.readMatrix();
-            cli.sendData(Integer.parseInt(args[1+fourDigit%2]));
-            cli.receiveData(8001);
+	    cli.str+=args[1];
+            cli.sendData(Integer.parseInt(args[2+fourDigit%2]));
+            cli.receiveData(Integer.parseInt(args[1]));
         }
     }
 	

@@ -20,11 +20,11 @@ this.port=port;
 
 	public void run(){
 		while(true){
-			try{
+			/*try{
 				Thread.sleep(1000);
 			}catch(Exception ex){
 				System.out.println(ex);			
-			}
+			}*/
 			if(Thread.currentThread()==t1){
 				receiveData(port);
 			}else{
@@ -68,9 +68,10 @@ this.port=port;
                     }
                 }
                 ip=dp.getAddress();//st[m*n+p*q+4];
-		System.out.println("port"+dp.getPort());
+		int ports=Integer.parseInt(st[m*n+p*q+4]);
+		System.out.println("port"+ports);
 		System.out.println(ip.toString());
-                que.add(new MyClass(m, n, p, q, a, b,ip));
+                que.add(new MyClass(m, n, p, q, a, b,ip,ports));
                 mprint(a);
                 mprint(b);                
                 ds.close();
@@ -128,23 +129,24 @@ this.port=port;
             	DatagramSocket ds=new DatagramSocket();
             	DataInputStream dis=new DataInputStream(System.in);
             	byte data[]=new byte[255];
+		int port=0;
             	try{
-			int m=mc.m;
-			int n=mc.n;
-			int p=mc.p;
-			int q=mc.q;
-			int[][]a=mc.a;
-			int[][]b=mc.b;
+			//int m=mc.m;
+			//int n=mc.n;
+			//int p=mc.p;
+			//int q=mc.q;
+			//int[][]a=mc.a;
+			//int[][]b=mc.b;
 			InetAddress ip=mc.ip;
-
+			port=mc.port;
 		        int[][]c=multiply(a,b);
 			int rows = c.length;
 		        int cols = c[0].length;
 		         mprint(c);
-		         str=m+":"+q;
+		         str=rows+":"+cols;
 			System.out.println(str);
-		         for(int i=0;i<m;i++){
-		             for(int j=0;j<q;j++)
+		         for(int i=0;i<rows;i++){
+		             for(int j=0;j<cols;j++)
 		                 str+=":"+c[i][j];
 		         }
                  
@@ -154,7 +156,7 @@ this.port=port;
                 }
                
                 data=str.getBytes();
-                DatagramPacket dp=new DatagramPacket(data,data.length,ip,8001);
+                DatagramPacket dp=new DatagramPacket(data,data.length,ip,port);
                 ds.send(dp);
 	    }
 
@@ -168,11 +170,7 @@ this.port=port;
     public static void main(String[] args) {
         int port=Integer.parseInt(args[0]);
         Server ser=new Server(port);
- //       while(true){
- //           ser.receiveData(8000);
- //           ser.sendData();
- //       }
-	ser.t1.start();
+ 	ser.t1.start();
 	ser.t2.start();
 
 	 }

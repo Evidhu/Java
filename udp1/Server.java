@@ -1,5 +1,4 @@
-import java.io.DataInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -37,16 +36,27 @@ this.port=port;
     int m,n,p,q;
    
     public void receiveData(int port){
+	DatagramSocket ds=null;
         try {
 		str="";
-            DatagramSocket ds=new DatagramSocket(port);
+            ds=new DatagramSocket(port);
             byte data[]=new byte[255];
                 DatagramPacket dp=new DatagramPacket(new byte[255], 255);
                 ds.receive(dp);
                 data=dp.getData();
-                str=new String(data).trim();
-                System.out.println("got : '"+str.trim()+"'");
-                String st[]=str.split(":");
+		 ByteArrayInputStream in = new ByteArrayInputStream(data);
+                ObjectInputStream is = new ObjectInputStream(in);
+		MyClass obj=null;
+                try {
+                     obj = (MyClass) is.readObject();
+                    //System.out.println("Student object received = "+student);
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+
+                //str=new String(data).trim();
+                //System.out.println("got : '"+str.trim()+"'");
+                /*String st[]=str.split(":");
                 m=Integer.parseInt(st[0]);
                 n=Integer.parseInt(st[1]);
                 a=new int[m][n];
@@ -66,19 +76,22 @@ this.port=port;
                         b[i][j]=Integer.parseInt(st[++k]);
                         System.out.println(""+b[i][j]);
                     }
-                }
+                }*/
                 ip=dp.getAddress();//st[m*n+p*q+4];
 		System.out.println("port"+dp.getPort());
 		System.out.println(ip.toString());
-                que.add(new MyClass(m, n, p, q, a, b,ip));
-                mprint(a);
-                mprint(b);                
-                ds.close();
+		obj.addIp(ip);
+                que.add(obj);
+                mprint(obj.a);
+                mprint(obj.b);                
+                
         } catch (SocketException ex) {
            System.out.println(ex.getMessage());
         } catch (IOException ex) {
              System.out.println(ex.getMessage());
-        }
+        }finally{
+		ds.close();
+	}
     }
   //  2:3:3:6:8:9:5:4:3:2:5:9:8:7:4:5:
      public int[][] multiply(int[][] m1, int[][] m2){
