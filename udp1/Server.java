@@ -1,5 +1,4 @@
-import java.io.DataInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -20,11 +19,11 @@ this.port=port;
 
 	public void run(){
 		while(true){
-			/*try{
+			try{
 				Thread.sleep(1000);
 			}catch(Exception ex){
 				System.out.println(ex);			
-			}*/
+			}
 			if(Thread.currentThread()==t1){
 				receiveData(port);
 			}else{
@@ -37,16 +36,27 @@ this.port=port;
     int m,n,p,q;
    
     public void receiveData(int port){
+	DatagramSocket ds=null;
         try {
 		str="";
-            DatagramSocket ds=new DatagramSocket(port);
+            ds=new DatagramSocket(port);
             byte data[]=new byte[255];
                 DatagramPacket dp=new DatagramPacket(new byte[255], 255);
                 ds.receive(dp);
                 data=dp.getData();
-                str=new String(data).trim();
-                System.out.println("got : '"+str.trim()+"'");
-                String st[]=str.split(":");
+		 ByteArrayInputStream in = new ByteArrayInputStream(data);
+                ObjectInputStream is = new ObjectInputStream(in);
+		MyClass obj=null;
+                try {
+                     obj = (MyClass) is.readObject();
+                    //System.out.println("Student object received = "+student);
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+
+                //str=new String(data).trim();
+                //System.out.println("got : '"+str.trim()+"'");
+                /*String st[]=str.split(":");
                 m=Integer.parseInt(st[0]);
                 n=Integer.parseInt(st[1]);
                 a=new int[m][n];
@@ -66,20 +76,22 @@ this.port=port;
                         b[i][j]=Integer.parseInt(st[++k]);
                         System.out.println(""+b[i][j]);
                     }
-                }
+                }*/
                 ip=dp.getAddress();//st[m*n+p*q+4];
-		int ports=Integer.parseInt(st[m*n+p*q+4]);
-		System.out.println("port"+ports);
+		System.out.println("port"+dp.getPort());
 		System.out.println(ip.toString());
-                que.add(new MyClass(m, n, p, q, a, b,ip,ports));
-               // mprint(a);
-               // mprint(b);                
-                ds.close();
+		obj.addIp(ip);
+                que.add(obj);
+                mprint(obj.a);
+                mprint(obj.b);                
+                
         } catch (SocketException ex) {
            System.out.println(ex.getMessage());
         } catch (IOException ex) {
              System.out.println(ex.getMessage());
-        }
+        }finally{
+		ds.close();
+	}
     }
   //  2:3:3:6:8:9:5:4:3:2:5:9:8:7:4:5:
      public int[][] multiply(int[][] m1, int[][] m2){
@@ -102,22 +114,23 @@ this.port=port;
          }
   
           return result;
-      }	       
+      }	 
+     
+              
    }
-
     public void mprint(int[][] a){
-	int rows = a.length;
-	int cols = a[0].length;
-	System.out.println("array["+rows+"]["+cols+"] = {");
-	for (int i=0; i< rows; i++){
-	 	System.out.print("{");
-	 	for (int j=0; j< cols; j++)
-	    		System.out.print(" " + a[i][j] + ",");
-	 	System.out.println("},");
-	 
-	}
-	System.out.println(":;");
-     }   
+      int rows = a.length;
+      int cols = a[0].length;
+      System.out.println("array["+rows+"]["+cols+"] = {");
+      for (int i=0; i< rows; i++){
+         System.out.print("{");
+         for (int j=0; j< cols; j++)
+            System.out.print(" " + a[i][j] + ",");
+         System.out.println("},");
+         
+      }
+      System.out.println(":;");
+   }   
 
      public void sendData(){
         try {
@@ -128,24 +141,23 @@ this.port=port;
             	DatagramSocket ds=new DatagramSocket();
             	DataInputStream dis=new DataInputStream(System.in);
             	byte data[]=new byte[255];
-		int port=0;
             	try{
-			//int m=mc.m;
-			//int n=mc.n;
-			//int p=mc.p;
-			//int q=mc.q;
-			//int[][]a=mc.a;
-			//int[][]b=mc.b;
+			int m=mc.m;
+			int n=mc.n;
+			int p=mc.p;
+			int q=mc.q;
+			int[][]a=mc.a;
+			int[][]b=mc.b;
 			InetAddress ip=mc.ip;
-			port=mc.port;
+
 		        int[][]c=multiply(a,b);
 			int rows = c.length;
 		        int cols = c[0].length;
 		         mprint(c);
-		         str=rows+":"+cols;
+		         str=m+":"+q;
 			System.out.println(str);
-		         for(int i=0;i<rows;i++){
-		             for(int j=0;j<cols;j++)
+		         for(int i=0;i<m;i++){
+		             for(int j=0;j<q;j++)
 		                 str+=":"+c[i][j];
 		         }
                  
@@ -155,7 +167,7 @@ this.port=port;
                 }
                
                 data=str.getBytes();
-                DatagramPacket dp=new DatagramPacket(data,data.length,ip,port);
+                DatagramPacket dp=new DatagramPacket(data,data.length,ip,8001);
                 ds.send(dp);
 	    }
 
@@ -166,20 +178,14 @@ this.port=port;
         } 
     }
 
-	/*for running this project 
-	 *
-	 *java Server server1port
-	 *
-	 *java Server 8000 
-	 *
-	 *java Server 8001
-	 *
-	*/
-
     public static void main(String[] args) {
         int port=Integer.parseInt(args[0]);
         Server ser=new Server(port);
- 	ser.t1.start();
+ //       while(true){
+ //           ser.receiveData(8000);
+ //           ser.sendData();
+ //       }
+	ser.t1.start();
 	ser.t2.start();
 
 	 }
