@@ -72,8 +72,8 @@ this.port=port;
 		System.out.println("port"+ports);
 		System.out.println(ip.toString());
                 que.add(new MyClass(m, n, p, q, a, b,ip,ports));
-                mprint(a);
-                mprint(b);                
+               // mprint(a);
+               // mprint(b);                
                 ds.close();
         } catch (SocketException ex) {
            System.out.println(ex.getMessage());
@@ -102,23 +102,22 @@ this.port=port;
          }
   
           return result;
-      }	 
-     
-              
+      }	       
    }
+
     public void mprint(int[][] a){
-      int rows = a.length;
-      int cols = a[0].length;
-      System.out.println("array["+rows+"]["+cols+"] = {");
-      for (int i=0; i< rows; i++){
-         System.out.print("{");
-         for (int j=0; j< cols; j++)
-            System.out.print(" " + a[i][j] + ",");
-         System.out.println("},");
-         
-      }
-      System.out.println(":;");
-   }   
+	int rows = a.length;
+	int cols = a[0].length;
+	System.out.println("array["+rows+"]["+cols+"] = {");
+	for (int i=0; i< rows; i++){
+	 	System.out.print("{");
+	 	for (int j=0; j< cols; j++)
+	    		System.out.print(" " + a[i][j] + ",");
+	 	System.out.println("},");
+	 
+	}
+	System.out.println(":;");
+     }   
 
      public void sendData(){
         try {
@@ -166,6 +165,16 @@ this.port=port;
              System.out.println(ex.getMessage());
         } 
     }
+
+	/*for running this project 
+	 *
+	 *java Server server1port
+	 *
+	 *java Server 8000 
+	 *
+	 *java Server 8001
+	 *
+	*/
 
     public static void main(String[] args) {
         int port=Integer.parseInt(args[0]);
