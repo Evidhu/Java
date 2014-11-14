@@ -4,31 +4,62 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.util.PriorityQueue;
-
+import java.util.*;
+import java.text.*;
 public class Server implements Runnable{
     String str;
+Date date=new Date();
+SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 	InetAddress ip;
-Thread t1,t2;
+Thread t1,t2,t3;
+ArrayList<String[]>history=new ArrayList<String[]>();
  PriorityQueue<MyClass> que=new PriorityQueue<MyClass>();
 int port;
 	public Server(int port){
 		t1=new Thread(this);
 		t2=new Thread(this);
+		t3=new Thread(this);
 this.port=port;
 	}
 
 	public void run(){
+		DataInputStream br=new DataInputStream(System.in);
 		while(true){
-			/*try{
-				Thread.sleep(1000);
+			try{
+				Thread.sleep(500);
 			}catch(Exception ex){
 				System.out.println(ex);			
-			}*/
+			}
 			if(Thread.currentThread()==t1){
 				receiveData(port);
-			}else{
+			}else if(Thread.currentThread()==t2){
 				sendData();
+			}else{
+				try{
+					br.readLine();
+					
+				}catch(IOException ex){
+					System.out.println(ex);
+				}
+				date=new Date();
+				System.out.println("\tHistory of load on server at "+dateFormat.format(date)+" : "+history.size());
+				if(history.size()>0){
+					System.out.println("\nROW1\tCOL1\tROW2\tCOL2\tIP Address\tport\tRequested on");
+				}
+				Iterator<String[]> itr=history.iterator();
+				history=new ArrayList<String[]>();
+				while(itr.hasNext()){
+					String hist[]=itr.next();
+					System.out.print(hist[0]);
+					System.out.print("\t"+hist[1]);
+					System.out.print("\t"+hist[2]);
+					System.out.print("\t"+hist[3]);
+					System.out.print("\t"+hist[4]);
+					System.out.print("\t"+hist[5]);
+					System.out.println("\t"+hist[6]);
+					
+					
+				}	
 			}
 			
 		}
@@ -74,6 +105,8 @@ this.port=port;
 		int ports=Integer.parseInt(st[m*n+p*q+4]);
 		System.out.println("port"+ports);
 		System.out.println(ip.toString());
+		date=new Date();
+		history.add(new String[]{""+m,""+n,""+p,""+q,ip.toString(),""+ports,dateFormat.format(date)});
                 que.add(new MyClass(m, n, p, q, a, b,ip,ports));
                // mprint(a);
                // mprint(b);                
@@ -184,6 +217,6 @@ this.port=port;
         Server ser=new Server(port);
  	ser.t1.start();
 	ser.t2.start();
-
+	ser.t3.start();
 	 }
 }
