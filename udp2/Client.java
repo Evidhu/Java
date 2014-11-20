@@ -75,15 +75,15 @@ DataInputStream dis;
  public void mprint(int[][] a){
       int rows = a.length;
       int cols = a[0].length;
-      System.out.println("array["+rows+"]["+cols+"] = {");
+      System.out.println("array["+rows+"]["+cols+"] = ");
       for (int i=0; i< rows; i++){
-         System.out.print("{");
+         System.out.print("");
          for (int j=0; j< cols; j++)
-            System.out.print(" " + a[i][j] + ",");
-         System.out.println("},");
+            System.out.print("" + a[i][j] + "\t");
+         System.out.println("");
          
       }
-      System.out.println(":;");
+      System.out.println("");
    }   
 
 	
@@ -146,6 +146,7 @@ DataInputStream dis;
 	    
             cli.readMatrix();
 	    cli.str+=args[1];
+	    System.out.println("Connecting to port "+ args[2+fourDigit%2]);
             cli.sendData(Integer.parseInt(args[2+fourDigit%2]));
             cli.receiveData(Integer.parseInt(args[1]));
         }

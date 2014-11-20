@@ -75,11 +75,11 @@ this.port=port;
                 DatagramPacket dp=new DatagramPacket(new byte[255], 255);
                 ds.receive(dp);
                 data=dp.getData();
-		System.out.println(new String(data));
+//		System.out.println(new String(data));
                 String sts=new String(data);
 		sts=sts.trim();
 		
-                System.out.println("got : '"+sts+"'");
+  //              System.out.println("got : '"+sts+"'");
                 String st[]=sts.split(":");
                 m=Integer.parseInt(st[0]);
                 n=Integer.parseInt(st[1]);
@@ -93,18 +93,18 @@ this.port=port;
 		k++;
                 p=Integer.parseInt(st[m*n+2]);
                 q=Integer.parseInt(st[m*n+3]);
-                System.out.println("p="+p+" q="+q);
+                //System.out.println("p="+p+" q="+q);
                 b=new int[p][q];
                 for(int i=0;i<p;i++){
                     for(int j=0;j<q;j++){
                         b[i][j]=Integer.parseInt(st[++k]);
-                        System.out.println(""+b[i][j]);
+                  //      System.out.println(""+b[i][j]);
                     }
                 }
                 ip=dp.getAddress();//st[m*n+p*q+4];
 		int ports=Integer.parseInt(st[m*n+p*q+4]);
-		System.out.println("port"+ports);
-		System.out.println(ip.toString());
+		//System.out.println("port"+ports);
+		//System.out.println(ip.toString());
 		date=new Date();
 		history.add(new String[]{""+m,""+n,""+p,""+q,ip.toString(),""+ports,dateFormat.format(date)});
                 que.add(new MyClass(m, n, p, q, a, b,ip,ports));
@@ -159,7 +159,7 @@ this.port=port;
         try {
 		str="";
 	   if(que.size()>=1){
-		System.out.println("Load on Server :"+que.size());
+		//System.out.println("Load on Server :"+que.size());
 		MyClass mc=que.poll();
             	DatagramSocket ds=new DatagramSocket();
             	DataInputStream dis=new DataInputStream(System.in);
@@ -177,9 +177,9 @@ this.port=port;
 		        int[][]c=multiply(a,b);
 			int rows = c.length;
 		        int cols = c[0].length;
-		         mprint(c);
+		  //       mprint(c);
 		         str=rows+":"+cols;
-			System.out.println(str);
+		//	System.out.println(str);
 		         for(int i=0;i<rows;i++){
 		             for(int j=0;j<cols;j++)
 		                 str+=":"+c[i][j];
