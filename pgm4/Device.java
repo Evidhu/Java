@@ -38,6 +38,8 @@ public class Device extends JFrame implements Runnable,ActionListener{
        
     ArrayList<String[]> cache=new ArrayList<>();
     String address[];
+
+	String myport,myip,switchip,switchport;
    
     public Device() {
         try {
@@ -241,6 +243,24 @@ public class Device extends JFrame implements Runnable,ActionListener{
     public void actionPerformed(ActionEvent e) {
        if(e.getSource()==btn_brow_switch){
            System.out.println("Browse Button Presses");
+
+	   try {
+			    DatagramSocket dss=new DatagramSocket();
+			    DatagramPacket dps;
+			    byte a[]=new byte[255];
+			 	
+				a=("ok").getBytes();
+				//System.out.println(new String(a));
+				dps=new DatagramPacket(a,a.length,InetAddress.getByName(t[1]),Integer.parseInt(st[2]));
+				dss.send(dps);
+			 
+				
+			} catch (SocketException ex) {
+			    System.out.println(ex);
+			} catch (IOException ex) {
+			    System.out.println(ex);
+			 ex.printStackTrace();
+			} 
        }else if(e.getSource()==btn_con_swi){
            System.out.println("Connect Button Presses");
        }else if(e.getSource()==btn_send){

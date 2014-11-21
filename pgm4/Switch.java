@@ -5,7 +5,8 @@ import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
-public class Switch extends JFrame {
+import java.awt.event.*;
+public class Switch extends JFrame implements Runnable,ActionListener{
 
     
     private JButton btn_brow_switch;
@@ -29,6 +30,11 @@ public class Switch extends JFrame {
     
     ArrayList<String[]> cache=new ArrayList<>();
     String address[];
+    
+    Thread t1,t2,t3;
+
+	String myport,myip,switchip,switchport;
+
     public Switch() {
          try {
              makeFrame();
@@ -37,7 +43,7 @@ public class Switch extends JFrame {
              Iterator<String[]> itr=mac.iterator();
              while(itr.hasNext()){
                  address=itr.next();
-                 cache.add(address);
+               //  cache.add(address);
                  // this.mac=addr[0];
                  //ip=addr[1];
                  txt_mymac.setText(address[0]);
@@ -46,6 +52,9 @@ public class Switch extends JFrame {
          } catch (MyNetException ex) {
              Logger.getLogger(Switch.class.getName()).log(Level.SEVERE, null, ex);
          }
+	t1=new Thread(this);
+	t2=new Thread(this);
+	t3=new Thread(this);
     }
 
     private void makeFrame() {
@@ -93,10 +102,12 @@ public class Switch extends JFrame {
         btn_brow_switch.setText("Browse");
         jPanel3.add(btn_brow_switch);
         btn_brow_switch.setBounds(350, 40, 90, 29);
+	btn_brow_switch.addActionListener(this);
 
         btn_con_swi.setText("Connect");
         jPanel3.add(btn_con_swi);
         btn_con_swi.setBounds(450, 40, 100, 29);
+	btn_con_swi.addActionListener(this);
 
         txt_swport.setHorizontalAlignment(JTextField.CENTER);
         txt_swport.setText("8000");
@@ -147,6 +158,7 @@ public class Switch extends JFrame {
         btn_start.setText("Start");
         jPanel1.add(btn_start);
         btn_start.setBounds(130, 20, 90, 29);
+	btn_start.addActionListener(this);
 
         getContentPane().add(jPanel1);
         jPanel1.setBounds(10, 10, 580, 120);
@@ -160,5 +172,79 @@ public class Switch extends JFrame {
         
     }
 
+    public void run() {
+        if(Thread.currentThread()==t1){
+		
+	    while(true){
+		try {
+		    //str="";
+		    DatagramSocket ds=new DatagramSocket(myport);
+		    byte data[];
+		    DatagramPacket dp=new DatagramPacket(new byte[255], 255);
+		    ds.receive(dp);
+		    data=dp.getData();
+		    String st[]=new String(data).trim().split("\\+\\+");
+		    if(st.length>0){
+		    	cache.add(st);
+		    	System.out.println("new node mac: "+st[0]);
+		        System.out.println("new node ip : "+st[1]);
+			System.out.println("new node port : "+st[2]);
+		        ips.add(st[1]);
+			try {
+			    DatagramSocket dss=new DatagramSocket();
+			    DatagramPacket dps;
+			    byte a[]=new byte[255];
+			 	
+				a=("ok").getBytes();
+				//System.out.println(new String(a));
+				dps=new DatagramPacket(a,a.length,InetAddress.getByName(t[1]),Integer.parseInt(st[2]));
+				dss.send(dps);
+			 
+				
+			} catch (SocketException ex) {
+			    System.out.println(ex);
+			} catch (IOException ex) {
+			    System.out.println(ex);
+			 ex.printStackTrace();
+			} 
+		    }
+
+		   /* st=new String(data).trim().split("::");
+		    if(st.length>0){
+		   
+			//System.out.println("new node mac: "+st[0]);
+		        System.out.println("data to : "+st[1]);
+			if(st[1].equals(address[3])){
+				System.out.println("message is: "+st[0]);
+			}
+		    }*/
+		    ds.close();
+		    
+		} catch (Exception ex) {
+		    ex.printStackTrace();
+		}
+	     }
+
+
+	} else if(Thread.currentThread()==t2){
+		
+	} else if(Thread.currentThread()==t2){
+		
+	}
+    }
+
+    public void actionPerformed(ActionEvent e) {
+       if(e.getSource()==btn_brow_switch){
+           System.out.println("Browse Button Presses");
+       }else if(e.getSource()==btn_con_swi){
+           System.out.println("Connect Button Presses");
+       }else if(e.getSource()==btn_start){
+           System.out.println("Send Button Presses");
+	   myport=txt_myport.getText();
+	   myip=txt_myip.getText();
+	   t1.start();
+       }
+       
+    }
     
 }
