@@ -6,6 +6,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
 import java.awt.event.*;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
 public class Switch extends JFrame implements Runnable,ActionListener{
 
     
@@ -174,30 +179,34 @@ public class Switch extends JFrame implements Runnable,ActionListener{
 
     public void run() {
         if(Thread.currentThread()==t1){
-		
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Switch.class.getName()).log(Level.SEVERE, null, ex);
+            }
 	    while(true){
 		try {
 		    //str="";
-		    DatagramSocket ds=new DatagramSocket(myport);
+		    DatagramSocket ds=new DatagramSocket(Integer.parseInt(myport));
 		    byte data[];
 		    DatagramPacket dp=new DatagramPacket(new byte[255], 255);
 		    ds.receive(dp);
 		    data=dp.getData();
 		    String st[]=new String(data).trim().split("\\+\\+");
-		    if(st.length>0){
+		    if(st.length>1){
 		    	cache.add(st);
 		    	System.out.println("new node mac: "+st[0]);
 		        System.out.println("new node ip : "+st[1]);
 			System.out.println("new node port : "+st[2]);
-		        ips.add(st[1]);
+		       // ips.add(st[1]);
 			try {
 			    DatagramSocket dss=new DatagramSocket();
 			    DatagramPacket dps;
 			    byte a[]=new byte[255];
 			 	
-				a=("ok").getBytes();
+				a=(txt_myip.getText()+"::"+txt_myport.getText()).getBytes();
 				//System.out.println(new String(a));
-				dps=new DatagramPacket(a,a.length,InetAddress.getByName(t[1]),Integer.parseInt(st[2]));
+				dps=new DatagramPacket(a,a.length,InetAddress.getByName(st[1]),Integer.parseInt(st[2]));
 				dss.send(dps);
 			 
 				
@@ -208,6 +217,59 @@ public class Switch extends JFrame implements Runnable,ActionListener{
 			 ex.printStackTrace();
 			} 
 		    }
+                    st=new String(data).trim().split(">>");
+		    if(st.length>1){
+                        Iterator it=cache.iterator();
+                        String ip="";
+                        while(it.hasNext()){
+                            String cach[]=(String[])it.next();
+                            if(st[2].equals("ff:ff:ff:ff:ff:ff")){
+                                if(cach[1].equals(st[3])&&cach[2].equals(st[5])){
+                                    System.out.println(new String(data));
+                                    try {
+                                         DatagramSocket dss=new DatagramSocket();
+                                        DatagramPacket dps;
+                                        byte a[]=new byte[255];
+                                            String msg=cach[0]+">>"+st[3]+">>"+st[0]+">>"+st[1]+">>"+st[5]+">>"+st[4];
+                                            a=(msg).getBytes();
+                                            System.out.println(st[1]+""+st[4]);
+                                            dps=new DatagramPacket(a,a.length,InetAddress.getByName(st[1]),Integer.parseInt(st[4]));
+                                            dss.send(dps);
+                                        
+                                       
+
+
+                                    } catch (SocketException ex) {
+                                        System.out.println(ex);
+                                    } catch (IOException ex) {
+                                        System.out.println(ex);
+                                     ex.printStackTrace();
+                                    } 
+                                }
+                            }
+                            else if(st.length==7){
+                                 try {
+                                       
+                                         DatagramSocket dss=new DatagramSocket();
+                                        DatagramPacket dps;
+                                        byte a[]=new byte[255];
+                                            String msg=new String(data);
+                                            a=(msg).getBytes();
+                                            System.out.println(st[1]+""+st[4]);
+                                            dps=new DatagramPacket(a,a.length,InetAddress.getByName(st[3]),Integer.parseInt(st[5]));
+                                            dss.send(dps);
+
+                                    } catch (SocketException ex) {
+                                        System.out.println(ex);
+                                    } catch (IOException ex) {
+                                        System.out.println(ex);
+                                     ex.printStackTrace();
+                                    } 
+                            }
+                            
+                        }
+                        
+                    }
 
 		   /* st=new String(data).trim().split("::");
 		    if(st.length>0){

@@ -2,14 +2,22 @@ import ip.vidhu.ipconfiguration.IpConfiguration;
 import ip.vidhu.ipconfiguration.MyNetException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
 public class Device extends JFrame implements Runnable,ActionListener{
 
     private JButton btn_brow_switch;
     private JButton btn_con_swi;
     private JButton btn_send;
+    private JButton btn_start;
     private JComboBox jComboBox1;
     private JLabel jLabel1;
     private JLabel jLabel2;
@@ -39,16 +47,19 @@ public class Device extends JFrame implements Runnable,ActionListener{
     ArrayList<String[]> cache=new ArrayList<>();
     String address[];
 
-	String myport,myip,switchip,switchport;
+	String myport,myip,mymac,switchip,switchport,urport,urip,urmac;
+        Thread t1;
    
     public Device() {
         try {
             makeFrame();
+            t1=new Thread(this);
+            switchs=new ArrayList();
             ArrayList<String[]> mac = new IpConfiguration().getAddress();
             Iterator<String[]> itr=mac.iterator();
             while(itr.hasNext()){
                 address=itr.next();
-                cache.add(address);
+              //  cache.add(address);
                 // this.mac=addr[0];
                 //ip=addr[1];
                 txt_mymac.setText(address[0]);
@@ -57,6 +68,7 @@ public class Device extends JFrame implements Runnable,ActionListener{
         } catch (MyNetException ex) {
            ex.printStackTrace();
         }
+        //t1.start();
     }
 
     private void makeFrame() {
@@ -89,7 +101,8 @@ public class Device extends JFrame implements Runnable,ActionListener{
         jComboBox1 = new JComboBox();
         btn_brow_switch = new JButton();
         btn_con_swi = new JButton();
-
+        btn_start = new JButton();
+        
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setTitle("Device");
         setAlwaysOnTop(true);
@@ -222,11 +235,15 @@ public class Device extends JFrame implements Runnable,ActionListener{
         lbl_swport.setText("Port");
         jPanel3.add(lbl_swport);
         lbl_swport.setBounds(90, 10, 50, 30);
-
+        
+        btn_start.setText("Start");
+        jPanel1.add(btn_start);
+        btn_start.setBounds(130, 20, 90, 29);
+        btn_start.addActionListener(this);
+        
         getContentPane().add(jPanel3);
         jPanel3.setBounds(10, 140, 580, 90);
 
-        pack();
     }
     public static void main(String args[]) {
            
@@ -234,37 +251,126 @@ public class Device extends JFrame implements Runnable,ActionListener{
            
     }
    
+    public void sendData(String msg,String ip){
+	try {
+	    DatagramSocket dss=new DatagramSocket();
+	    DatagramPacket dps;
+	    byte a[]=new byte[255];
+	 	
+		a=(msg).getBytes();
+		//System.out.println(new String(a));
+		dps=new DatagramPacket(a,a.length,InetAddress.getByName(ip),Integer.parseInt(txt_swport.getText()));
+		dss.send(dps);
+	 
+		
+	} catch (SocketException ex) {
+	    System.out.println(ex);
+	} catch (IOException ex) {
+	    System.out.println(ex);
+	 ex.printStackTrace();
+	}
+    }
     
-   
+   ArrayList switchs;
     public void run() {
-        throw new UnsupportedOperationException("Not supported yet."); 
+	if(Thread.currentThread()==t1){
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Device.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        while(true){
+		try {
+		    //str="";
+		    DatagramSocket ds=new DatagramSocket(Integer.parseInt(txt_myport.getText()));
+		    byte data[];
+		    DatagramPacket dp=new DatagramPacket(new byte[255], 255);
+		    ds.receive(dp);
+		    data=dp.getData();
+                    String rec=new String(data).trim();
+		    System.out.println(rec);
+		
+		    String st[]=rec.split("::");
+		    if(st.length>1){
+                        if(!switchs.contains(st[0]))
+                            switchs.add(st[0]);
+		    	//cache.add(st);
+		    	//System.out.println("new node mac: "+st[0]);
+		        //System.out.println("new node ip : "+st[1]);
+			//System.out.println("new node port : "+st[2]);
+		        //ips.add(st[1]);
+                        String sws[]=new String[switchs.size()+1];
+                        Iterator it=switchs.iterator();
+                        int i=0;
+                        sws[i++]="Select Switch";
+                        while(it.hasNext()){
+                            sws[i++]=(String)it.next();
+                        }
+                        jComboBox1.setModel(new DefaultComboBoxModel(sws));
+		    }
+                     st=rec.split(">>");
+		    if(st.length==6){
+                        txt_urmac.setText("ff:ff:ff:ff:ff:ff");
+                        cache.add(new String[]{st[0],st[1],st[4]});
+//                        String msg=mymac+">>"+myip+">>"+urmac+">>"+urip+">>"+myport+">>"+urport+">>"+jTextArea1.getText();
+//                        sendData(msg,switchip);
+                    }else if(st.length==7){
+                        jTextArea1.setText(st[6]);
+                    }
+		
+		 ds.close();
+		    
+		} catch (Exception ex) {
+		    ex.printStackTrace();
+		}
+	}
+	}
+		 
     }
 
     public void actionPerformed(ActionEvent e) {
        if(e.getSource()==btn_brow_switch){
+           
            System.out.println("Browse Button Presses");
-
-	   try {
-			    DatagramSocket dss=new DatagramSocket();
-			    DatagramPacket dps;
-			    byte a[]=new byte[255];
-			 	
-				a=("ok").getBytes();
-				//System.out.println(new String(a));
-				dps=new DatagramPacket(a,a.length,InetAddress.getByName(t[1]),Integer.parseInt(st[2]));
-				dss.send(dps);
-			 
-				
-			} catch (SocketException ex) {
-			    System.out.println(ex);
-			} catch (IOException ex) {
-			    System.out.println(ex);
-			 ex.printStackTrace();
-			} 
+           String ip[]=txt_myip.getText().split("\\.");
+            int last=Integer.parseInt(ip[3]);
+            String msg=txt_mymac.getText()+"++"+txt_myip.getText()+"++"+txt_myport.getText();
+            for(int i=0;i<256;i++){
+                sendData(msg,ip[0]+"."+ip[1]+"."+ip[2]+"."+i);
+            }
        }else if(e.getSource()==btn_con_swi){
            System.out.println("Connect Button Presses");
+           myip=txt_myip.getText();
+           myport=txt_myport.getText();
+           mymac=txt_mymac.getText();
+           switchport=txt_swport.getText();
+           switchip=jComboBox1.getSelectedItem().toString();
        }else if(e.getSource()==btn_send){
            System.out.println("Send Button Presses");
+           urip=txt_urip.getText();
+           urport=txt_urport.getText();
+          
+            Iterator it=cache.iterator();
+            String ip="";
+            String cach[];
+            while(it.hasNext()){
+                cach=(String[])it.next();
+                if(cach[1].equals(urip)&&cach[2].equals(urport)){
+                     txt_urmac.setText(cach[0]);
+                }
+            }
+            urmac=txt_urmac.getText();
+           if(urmac.equals("ff:ff:ff:ff:ff:ff")){
+               String msg=mymac+">>"+myip+">>"+urmac+">>"+urip+">>"+myport+">>"+urport;
+                sendData(msg,switchip);
+           }else{
+                String msg=mymac+">>"+myip+">>"+urmac+">>"+urip+">>"+myport+">>"+urport+">>"+jTextArea1.getText();
+                sendData(msg,switchip);
+           }
+           
+       }else if(e.getSource()==btn_start){
+           System.out.println("start Button Presses");
+           t1.start();
        }
        
     }
