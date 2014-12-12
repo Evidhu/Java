@@ -120,8 +120,8 @@ class Graph{
                 }
                 break;
              }while(true);
-             path="From '"+source+"' to '"+dest+"' is :";
-            findPath(source, dest);
+             path="From '"+source+"' to '"+dest+"' is :"+findPath(source, dest);
+            
          } catch (IOException ex) {
             System.out.println("error"+ex);
          } catch (Exception ex) {
@@ -135,9 +135,9 @@ class Graph{
     	 Iterator<Edge> it=edge.iterator();
          while(it.hasNext()){
              Edge e=it.next();
-             System.out.println(e.v+" <----- "+e.weight+" -----> "+e.u+" //  "+s+" "+d);
+           //  System.out.println(e.v+" <----- "+e.weight+" -----> "+e.u+" //  "+s+" "+d);
              if((e.v==getVertex(s+"")&&e.u==getVertex(d+""))||(e.u==getVertex(s+"")&&e.v==getVertex(d+""))){
-            	 System.out.println("sdsjhdhh");
+            	// System.out.println("sdsjhdhh");
             	 dist=e.weight;
             	 break;
              }
@@ -177,9 +177,9 @@ class Graph{
     	           }
     	 }
     	path=Path(toInt(s.toString()), toInt(d.toString()));
-    	mprint(mat);
+    	//mprint(next);
     	
-    	return path;
+    	return path+"\n path weight = "+mat[toInt(s.toString())-1][toInt(d.toString())-1];
     }
     
     public void mprint(int[][] a){
@@ -204,13 +204,14 @@ class Graph{
     while (u != v){
         u = next[u-1][v-1];
         path+="->"+u;
+        System.out.println(path);
     }
     return path;
     }
 }
 
 
-public class SPF {
+public class ShortestPathFind {
     
    
     
@@ -222,7 +223,7 @@ public class SPF {
     public static void main(String[] args) {
         try {
             BufferedReader br=new BufferedReader(new InputStreamReader(System.in));
-            SPF s=new SPF();
+            ShortestPathFind s=new ShortestPathFind();
             Graph g=null;
             int menu;
             do{
