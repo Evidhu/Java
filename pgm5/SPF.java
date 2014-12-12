@@ -35,8 +35,10 @@ class Graph{
     
     public void AddVertex(){
         try {
-            System.out.println("Enter Vertex Name");
-            vertex.add(new Vertex(toInt(br.readLine())));
+            System.out.println("Enter No of Vertices");
+            	String st=br.readLine();
+            for(int i=1;i<=toInt(st);i++)
+            	vertex.add(new Vertex(i));
         } catch (IOException ex) {
             System.out.println("Error : "+ex);
         }
@@ -51,7 +53,7 @@ class Graph{
          Vertex v=null;
         while(it.hasNext()){
             v=it.next();
-            System.out.println(v);
+           // System.out.println(v);
             if(v.toString().equals(name))
                 break;
             else
@@ -133,8 +135,9 @@ class Graph{
     	 Iterator<Edge> it=edge.iterator();
          while(it.hasNext()){
              Edge e=it.next();
-             System.out.println(e.v+" <----- "+e.weight+" -----> "+e.u+"   "+s+" ");
-             if((e.u==getVertex(s+"")&&e.u==getVertex(d+""))||(e.u==getVertex(s+"")&&e.u==getVertex(d+""))){
+             System.out.println(e.v+" <----- "+e.weight+" -----> "+e.u+" //  "+s+" "+d);
+             if((e.v==getVertex(s+"")&&e.u==getVertex(d+""))||(e.u==getVertex(s+"")&&e.v==getVertex(d+""))){
+            	 System.out.println("sdsjhdhh");
             	 dist=e.weight;
             	 break;
              }
@@ -143,24 +146,40 @@ class Graph{
          return dist;
     }
     
-    int mat[][];
-    public ArrayList<Object> findPath(Vertex s,Vertex d){
-    	ArrayList<Object> ar=new ArrayList<Object>();
+    int mat[][];int next[][];
+    public String findPath(Vertex s,Vertex d){
+    	String path;
     	int size=vertex.size();
     	mat=new int[size][size];
+    	next=new int[size][size];
     	for(int i=0;i<size;i++){
     		for(int j=0;j<size;j++){
+    			
     			if(i==j){
     				mat[i][j]=0;
+    				next[i][j]=0;
     				continue;
     			}
     			mat[i][j]=getWeight(i+1, j+1);
-    			
+    			if(getWeight(i+1, j+1)==9999)
+    				next[i][j]=0;
+    			else
+    				next[i][j]=j+1;
     		}
     	}
+    	
+    	 for (int k=0;k<size;k++)
+    	   for(int i=0;i<size;i++)
+    	        for (int j=0;j<size;j++){
+    	           if (mat[i][j] > mat[i][k] + mat[k][j]) {
+    	              mat[i][j] =mat[i][k] + mat[k][j];
+	              	  next[i][j] = next[i][k];
+    	           }
+    	 }
+    	path=Path(toInt(s.toString()), toInt(d.toString()));
     	mprint(mat);
     	
-    	return ar;
+    	return path;
     }
     
     public void mprint(int[][] a){
@@ -177,8 +196,20 @@ class Graph{
     	System.out.println(":;");
          }   
     
-    
+
+    public String Path(int u, int v){
+    if (next[u-1][v-1] ==0)
+        return "";
+    String path = u+"";
+    while (u != v){
+        u = next[u-1][v-1];
+        path+="->"+u;
+    }
+    return path;
+    }
 }
+
+
 public class SPF {
     
    
